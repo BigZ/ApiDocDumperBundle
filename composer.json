@@ -1,0 +1,24 @@
+{
+  "name": "bigz/api-doc-dumper-bundle",
+  "description": "Dumps your OpenApi documention to a json file",
+  "keywords": [ "openapi", "swagger", "nelmioapidoc", "rest" ],
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Romain Richard",
+      "email": "rrichard@outlook.fr"
+    }
+  ],
+  "require": {
+    "php": ">5.5",
+    "nelmio/api-doc-bundle": "^3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": ">5.7"
+  },
+  "autoload": {
+    "psr-0": { "Bigz\\ApiDocDumperBundle": "" }
+  },
+  "target-dir": "Bigz/ApiDocDumperBundle"
+}
