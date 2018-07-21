@@ -30,10 +30,15 @@ class DumpApiDocCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('generate:swagger-doc')
-            ->setDescription('Generate a swagger.json file according to your annotations')
-            ->addArgument('argument', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option', null, InputOption::VALUE_NONE, 'Option description');
+            ->setName('dump:api-doc')
+            ->setDescription('Generate a openApi documentation json file according to your annotations')
+            ->addArgument(
+                'fileName',
+                InputArgument::OPTIONAL,
+                'Output file name. Default: apidoc.json',
+                'apidoc.json'
+            )
+        ;
     }
 
     /**
@@ -50,12 +55,12 @@ class DumpApiDocCommand extends ContainerAwareCommand
         $jsonSchema = json_encode($apiDoc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         if ($jsonSchema) {
-            $fileSystem->dumpFile('swagger.json', $jsonSchema);
+            $fileSystem->dumpFile($input->getArgument('fileName'), $jsonSchema);
 
-            return $output->writeln('swagger.json generated successfully');
+            return $output->writeln('The API documentation was dumped successfully');
         }
 
-        return $output->writeln('unable to generate swagger.json');
+        return $output->writeln('Unable to generate the API documentation');
     }
 
     /**
