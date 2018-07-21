@@ -11,19 +11,37 @@
 
 namespace Bigz\ApiDocDumperBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Nelmio\ApiDocBundle\ApiDocGenerator;
 
 /**
  * Class GenerateSwaggerDocumentationCommand
  * @author Romain Richard
  */
-class DumpApiDocCommand extends ContainerAwareCommand
+class DumpApiDocCommand extends Command
 {
+    /**
+     * @var ApiDocGenerator $generator
+     */
+    private $generator;
+
+    /**
+     * DumpApiDocCommand constructor.
+     *
+     * @param ApiDocGenerator $generator
+     * @param null $name
+     */
+    public function __construct(ApiDocGenerator $generator, $name = null)
+    {
+        $this->generator = $generator;
+
+        parent::__construct($name);
+    }
+
     /**
      * @inheritdoc
      */
@@ -47,7 +65,7 @@ class DumpApiDocCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $fileSystem = new Filesystem();
-        $apiDoc = $this->getContainer()->get('nelmio_api_doc.generator')->generate()->toArray();
+        $apiDoc = $this->generator->generate()->toArray();
         $apiDoc['paths'] = $this->removePrivatePaths($apiDoc['paths']);
         $apiDoc['paths'] = $this->addExamples($apiDoc['paths']);
         $apiDoc['definitions'] = $this->removeDatePattern($apiDoc['definitions']);

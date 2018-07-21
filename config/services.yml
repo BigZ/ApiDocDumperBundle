@@ -1,5 +1,7 @@
 services:
-  Bigz\ApiDocDumperBundle\Command\DumpApiDocCommand:
-    public: true
-    tags:
-      - { name: console.command }
+    Bigz\ApiDocDumperBundle\Command\DumpApiDocCommand:
+        public: true
+        tags:
+            - { name: console.command }
+        arguments:
+            - '@nelmio_api_doc.generator'
