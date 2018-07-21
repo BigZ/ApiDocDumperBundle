@@ -22,7 +22,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * Class GenerateSwaggerDocumentationCommand
  * @author Romain Richard
  */
-class GenerateSwaggerDocumentationCommand extends ContainerAwareCommand
+class DumpApiDocCommand extends ContainerAwareCommand
 {
     /**
      * @inheritdoc

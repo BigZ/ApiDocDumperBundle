@@ -1,5 +1,5 @@
 services:
-  Bigz\ApiDocDumper\GenerateSwaggerDocumentationCommand:
+  Bigz\ApiDocDumperBundle\Command\DumpApiDocCommand:
     public: true
     tags:
       - { name: console.command }
