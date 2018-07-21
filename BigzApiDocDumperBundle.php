@@ -1,10 +1,10 @@
 <?php
 
-namespace Bigz\HalapiBundle;
+namespace Bigz\ApiDocDumperBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class BigzHalapiBundle extends Bundle
+class ApiDocDumperBundle extends Bundle
 {
 
 }

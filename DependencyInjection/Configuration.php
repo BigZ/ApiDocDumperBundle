@@ -1,6 +1,6 @@
 <?php
 
-namespace Bigz\HalapiBundle\DependencyInjection;
+namespace Bigz\ApiDocDumperBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
