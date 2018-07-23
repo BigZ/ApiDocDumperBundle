@@ -92,6 +92,10 @@ class DumpApiDocCommand extends Command
             if (false !== strstr($path, '/_')) {
                 unset($pathList[$path]);
             }
+
+            if ('/' === $path) {
+                unset($pathList[$path]);
+            }
         }
 
         return $pathList;
