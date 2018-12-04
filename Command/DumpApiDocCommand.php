@@ -67,7 +67,6 @@ class DumpApiDocCommand extends Command
         $fileSystem = new Filesystem();
         $apiDoc = $this->generator->generate()->toArray();
         $apiDoc['paths'] = $this->removePrivatePaths($apiDoc['paths']);
-        $apiDoc['paths'] = $this->addExamples($apiDoc['paths']);
         $apiDoc['definitions'] = $this->removeDatePattern($apiDoc['definitions']);
 
         $jsonSchema = json_encode($apiDoc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
@@ -102,30 +101,8 @@ class DumpApiDocCommand extends Command
     }
 
     /**
-     * @param array $pathList
-     *
-     * @return array
-     */
-    private function addExamples(array $pathList)
-    {
-        foreach ($pathList as $pathName => $path) {
-            foreach ($path as $methodName => $method) {
-                if (isset($method['parameters']) && is_array($method['parameters'])) {
-                    foreach ($method['parameters'] as $parameterName => $parameter) {
-                        if (true === $parameter['required'] && 'path' === $parameter['in']) {
-                            $pathList[$pathName][$methodName]['parameters'][$parameterName]['x-example'] =
-                                'delete' === $methodName ? '2' : '1';
-                        }
-                    }
-                }
-            }
-        }
-
-        return $pathList;
-    }
-
-    /**
-     * Nelmio api doc adds a shitty "pattern" thing to date-time in forms, and we don't want that.
+     * Nelmio api doc adds a weird "pattern" thing to date-time in forms, and that causes the swagger file to be invalid.
+     * Reference: https://github.com/swagger-api/swagger-editor/issues/1225
      *
      * @param array $definitionList
      *
