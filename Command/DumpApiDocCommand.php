@@ -69,6 +69,10 @@ class DumpApiDocCommand extends Command
         $apiDoc['paths'] = $this->removePrivatePaths($apiDoc['paths']);
         $apiDoc['definitions'] = $this->removeDatePattern($apiDoc['definitions']);
 
+        if ($this->isJsonApi($apiDoc)) {
+            $apiDoc['definitions'] = $this->removeIdFromDefinitions($apiDoc['definitions']);
+        }
+
         $jsonSchema = json_encode($apiDoc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         if ($jsonSchema) {
@@ -121,5 +125,32 @@ class DumpApiDocCommand extends Command
         }
 
         return $definitionList;
+    }
+
+    /**
+     * Don't duplicate the id parameter in jsonapi.
+     *
+     * @param array $definitionList
+     *
+     * @return array
+     */
+    private function removeIdFromDefinitions(array $definitionList)
+    {
+        foreach ($definitionList as $definitionName => $definition) {
+            if (isset($definition['properties'])) {
+                foreach ($definition['properties'] as $propertyId => $property) {
+                    if ('id' === $propertyId) {
+                        unset($definitionList[$definitionName]['properties'][$propertyId]);
+                    }
+                }
+            }
+        }
+
+        return $definitionList;
+    }
+
+    private function isJsonApi($apiDoc)
+    {
+        return in_array('application/vnd.api+json', $apiDoc['produces']);
     }
 }
