@@ -67,7 +67,6 @@ class DumpApiDocCommand extends Command
         $fileSystem = new Filesystem();
         $apiDoc = $this->generator->generate()->toArray();
         $apiDoc['paths'] = $this->removePrivatePaths($apiDoc['paths']);
-        $apiDoc['definitions'] = $this->removeDatePattern($apiDoc['definitions']);
 
         if ($this->isJsonApi($apiDoc)) {
             $apiDoc['definitions'] = $this->removeIdFromDefinitions($apiDoc['definitions']);
@@ -102,29 +101,6 @@ class DumpApiDocCommand extends Command
         }
 
         return $pathList;
-    }
-
-    /**
-     * Nelmio api doc adds a weird "pattern" thing to date-time in forms, and that causes the swagger file to be invalid.
-     * Reference: https://github.com/swagger-api/swagger-editor/issues/1225
-     *
-     * @param array $definitionList
-     *
-     * @return array
-     */
-    private function removeDatePattern(array $definitionList)
-    {
-        foreach ($definitionList as $definitionName => $definition) {
-            if (isset($definition['properties'])) {
-                foreach ($definition['properties'] as $propertyId => $property) {
-                    if (isset($property['format']) && isset($property['pattern'])) {
-                        unset($definitionList[$definitionName]['properties'][$propertyId]['pattern']);
-                    }
-                }
-            }
-        }
-
-        return $definitionList;
     }
 
     /**
