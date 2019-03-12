@@ -68,7 +68,7 @@ class DumpApiDocCommand extends Command
         $apiDoc = $this->generator->generate()->toArray();
         $apiDoc['paths'] = $this->removePrivatePaths($apiDoc['paths']);
 
-        if ($this->isJsonApi($apiDoc)) {
+        if ($this->isJsonApi($apiDoc) && isset($apiDoc['definitions'])) {
             $apiDoc['definitions'] = $this->removeIdFromDefinitions($apiDoc['definitions']);
         }
 
@@ -127,6 +127,6 @@ class DumpApiDocCommand extends Command
 
     private function isJsonApi($apiDoc)
     {
-        return in_array('application/vnd.api+json', $apiDoc['produces']);
+        return isset($apiDoc['produces']) && in_array('application/vnd.api+json', $apiDoc['produces']);
     }
 }
