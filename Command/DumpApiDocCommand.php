@@ -17,6 +17,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Nelmio\ApiDocBundle\ApiDocGenerator;
+use Doctrine\Common\Annotations\AnnotationReader;
+use WizardsRest\Annotation\Exposable;
 
 /**
  * Class GenerateSwaggerDocumentationCommand
@@ -29,6 +31,8 @@ class DumpApiDocCommand extends Command
      */
     private $generator;
 
+    private $reader;
+
     /**
      * DumpApiDocCommand constructor.
      *
@@ -38,6 +42,8 @@ class DumpApiDocCommand extends Command
     public function __construct(ApiDocGenerator $generator, $name = null)
     {
         $this->generator = $generator;
+
+        $this->reader = new AnnotationReader();
 
         parent::__construct($name);
     }
@@ -70,6 +76,7 @@ class DumpApiDocCommand extends Command
 
         if ($this->isJsonApi($apiDoc) && isset($apiDoc['definitions'])) {
             $apiDoc['definitions'] = $this->removeIdFromDefinitions($apiDoc['definitions']);
+            $apiDoc['definitions'] = $this->removeRelationsFromDefinitions($apiDoc['definitions']);
         }
 
         $jsonSchema = json_encode($apiDoc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
@@ -117,6 +124,46 @@ class DumpApiDocCommand extends Command
                 foreach ($definition['properties'] as $propertyId => $property) {
                     if ('id' === $propertyId) {
                         unset($definitionList[$definitionName]['properties'][$propertyId]);
+                    }
+                }
+            }
+        }
+
+        return $definitionList;
+    }
+
+    /**
+     * Relationships are managed as HATEOAS in jsonapi.
+     *
+     * @param array $definitionList
+     *
+     * @return array
+     */
+    private function removeRelationsFromDefinitions(array $definitionList)
+    {
+        foreach ($definitionList as $definitionName => $definition) {
+            if (isset($definition['properties'])) {
+                foreach ($definition['properties'] as $propertyId => $property) {
+                    // if property is a relationship
+                    if (isset($property['$ref']) || isset($property['items']['$ref'])) {
+                        // check in the entity s actually a relation
+                        try {
+                            $reflection = new \ReflectionClass(
+                                sprintf('App\\Entity\\%s', ucfirst($definitionName))
+                            );
+                            if (
+                                $reflection
+                                && $reflection->hasProperty($propertyId)
+                                && null === $this->reader->getPropertyAnnotation(
+                                    $reflection->getProperty($propertyId),
+                                    Exposable::class
+                                )
+                            ) {
+                                unset($definitionList[$definitionName]['properties'][$propertyId]);
+                            }
+                        } catch (\Exception $exception) {
+                           // property is not a relation. skip.
+                        }
                     }
                 }
             }
